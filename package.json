@@ -2,7 +2,7 @@
   "name": "nest-scraping-app",
   "version": "1.0.0",
   "scripts": {
-    "start": "node -r tsconfig-paths/register dist/main.js",
+    "start": "nest start",
     "start:dev": "nest start --watch",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
