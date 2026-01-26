@@ -107,5 +107,14 @@ async findByBehaviourLinkWithFilter(
     totalPages: Math.ceil(total / take),
   };
 }
+  async findLeadById(userId: string, id: string) {
+    const lead = await this.repo
+      .createQueryBuilder('behaviour')
+      .leftJoinAndSelect('behaviour.profile', 'profile')
+      .leftJoinAndSelect('behaviour.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('behaviour.id = :id', { id })
+      .getOne();
+  }
 
 }

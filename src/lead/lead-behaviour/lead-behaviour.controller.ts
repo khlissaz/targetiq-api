@@ -15,4 +15,11 @@ export class LeadBehaviourController {
 
        return this.leadBehaviourService.findByBehaviourLinkWithFilter(user.userId, filterDto, limit, page);
      }
+     
+     @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  findLeadById(@Req() req, @Body() id: string) {
+    const user = req.user;
+    return this.leadBehaviourService.findLeadById(user.userId, id);
+  }
 }

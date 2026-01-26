@@ -1,15 +1,51 @@
-import { Query } from '@nestjs/common';
-import { Controller, Post, Body, Req, Get, Param, UseGuards } from '@nestjs/common';
-import { ScrapingService } from './scraping.service';
-import { ScrapingDto } from './dto/scraping.dto';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { Query } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Get,
+  Param,
+  UseGuards,
+} from "@nestjs/common";
+import { ScrapingService } from "./scraping.service";
+import { ScrapingDto } from "./dto/scraping.dto";
+import { JwtAuthGuard } from "../auth/jwt.guard";
 
-@Controller('scraping')
+@Controller("scraping")
 export class ScrapingController {
   constructor(private readonly scrapingService: ScrapingService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post('ingest')
+  @Get("list")
+  async list(
+    @Req() req,
+    @Query("limit") limit: number,
+    @Query("page") page: number,
+  ) {
+    const user = req.user;
+    return this.scrapingService.listScrapingsByPage(user.userId, limit, page);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("list-leads")
+async listLeadsByScrapingIdByPage(
+  @Req() req,
+  @Query("scrapingId") scrapingId: string,
+  @Query("limit") limit: number,
+  @Query("page") page: number,
+) {
+  const user = req.user;
+  return this.scrapingService.listLeadsByScrapingIdByPage(
+    user.userId,
+    scrapingId,
+    limit,
+    page,
+  );
+}
+
+  @UseGuards(JwtAuthGuard)
+  @Post("ingest")
   async ingest(@Body() dto: ScrapingDto, @Req() req) {
     const user = req.user; // passport-jwt validate returns user object
     console.log(" ingest scraping dto", dto);
@@ -17,7 +53,7 @@ export class ScrapingController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('recent')
+  @Get("recent")
   async recent(@Req() req) {
     const user = req.user;
     const result = await this.scrapingService.getRecentScraping(user.userId);
@@ -26,29 +62,32 @@ export class ScrapingController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id/leads')
-  async leads(@Param('id') id: string) {
+  @Get(":id/leads")
+  async leads(@Param("id") id: string) {
     return this.scrapingService.getLeadsByScrapingId(id);
   }
 
   // Public endpoint for queued (unauthenticated) batches to be ingested later
-  @Post('queued')
+  @Post("queued")
   async queuedIngest(@Body() dto: ScrapingDto) {
     // This endpoint intentionally does not require auth and will associate scraping with no user
     return this.scrapingService.ingestQueued(dto);
   }
 
   // Public endpoint to fetch a queued scraping by idempotencyKey (no auth)
-  @Get('queued/by-idempotency-key')
-  async getQueuedByIdempotencyKey(@Query('idempotencyKey') idempotencyKey: string) {
+  @Get("queued/by-idempotency-key")
+  async getQueuedByIdempotencyKey(
+    @Query("idempotencyKey") idempotencyKey: string,
+  ) {
     if (!idempotencyKey) {
-      return { error: 'idempotencyKey is required' };
+      return { error: "idempotencyKey is required" };
     }
-    const scraping = await this.scrapingService.findQueuedByIdempotencyKey(idempotencyKey);
+    const scraping = await this.scrapingService.findQueuedByIdempotencyKey(
+      idempotencyKey,
+    );
     if (!scraping) {
-      return { error: 'Not found' };
+      return { error: "Not found" };
     }
     return scraping;
   }
-
-} 
+}

@@ -14,6 +14,7 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { CreditsService } from '../credits/credits.service';
 import { Inject, forwardRef } from '@nestjs/common';
+import { LeadBehaviour } from 'src/lead/lead-behaviour/lead-behaviour.entity';
 
 
 @Injectable()
@@ -28,6 +29,8 @@ export class ScrapingService {
     private readonly userService:UsersService,
     @Inject(forwardRef(() => CreditsService))
     private readonly creditsService: CreditsService,
+     @InjectRepository(LeadBehaviour)
+    private readonly behaviourRepo: Repository<LeadBehaviour>,
   ) {}
 
   // Find a queued scraping by idempotencyKey (no user association)
@@ -208,5 +211,67 @@ export class ScrapingService {
 
   private generateScrapingName() {
     return `scraping-linkedin-${new Date().toISOString()}`;
+  }
+async listScrapingsByPage(userId: string, limit?: number, page?: number) {
+    // ✅ Parse safely and fall back to defaults
+    const parsedLimit = parseInt(limit as any, 10);
+    const parsedPage = parseInt(page as any, 10);
+
+    const take = !isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
+    const currentPage = !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const skip = (currentPage - 1) * take;
+
+    const [items, total] = await this.scrapingRepo.findAndCount({
+      where: { user: { id: userId } },
+      order: { createdAt: 'DESC' },
+      take,
+      skip,
+      relations: ['user', 'behaviours'],
+    });
+
+    return {
+      items: items.map((s) => ({
+        id: s.id,
+        source: s.source,
+        type: s.type,
+        name: s.name,
+        totalLeads: s.behaviours ? s.behaviours.length : 0,
+        createdAt: s.createdAt,
+        updatedAt: s.updatedAt,
+        userId: s.user.id,
+      })),
+      total,
+      currentPage,
+      pageSize: take,
+    };
+  }
+  async listLeadsByScrapingIdByPage(userId: string, scrapingId: string, limit?: number, page?: number) {
+   console.log("listLeadsByScrapingIdByPage called with:", { userId, scrapingId, limit, page });
+    // ✅ Parse safely and fall back to defaults
+    const parsedLimit = parseInt(limit as any, 10);
+    const parsedPage = parseInt(page as any, 10);
+    
+    const take = !isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
+    const currentPage = !isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const skip = (currentPage - 1) * take;
+    const qb = this.behaviourRepo
+      .createQueryBuilder('behaviour')
+      .leftJoinAndSelect('behaviour.profile', 'profile')
+      .leftJoinAndSelect('behaviour.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('behaviour.scraping_id = :scrapingId', { scrapingId })
+
+    const [items, total] = await qb
+      .orderBy('behaviour.createdAt', 'DESC')
+      .take(take)
+      .skip(skip)
+      .getManyAndCount();
+
+    return {
+      items,
+      total,
+      currentPage,
+      pageSize: take,
+    };
   }
 }
