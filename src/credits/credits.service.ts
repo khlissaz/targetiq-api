@@ -77,38 +77,6 @@ export class CreditsService {
     dailyLimit: credit.amount,
     dailyUsage: credit.dailyScrapeCount,
   };
-  }
-
-  // Decrement scraping credits, ensuring credits >= 0
-  async decrementScrapingCredit(userId: string, amount: number = 1): Promise<Credit> {
-    const credit = await this.creditRepo.findOne({ where: { user: { id: userId }, type: CreditType.SCRAPING } });
-    if (!credit) throw new Error('Scraping credit not found for user');
-    credit.amount = Math.max(0, credit.amount - amount);
-    return this.creditRepo.save(credit);
-  }
-
-  // Decrement enrichment credits, ensuring credits >= 0
-  async decrementEnrichmentCredit(userId: string, amount: number = 1): Promise<Credit> {
-    const credit = await this.creditRepo.findOne({ where: { user: { id: userId }, type: CreditType.ENRICHMENT } });
-    if (!credit) throw new Error('Enrichment credit not found for user');
-    credit.amount = Math.max(0, credit.amount - amount);
-    return this.creditRepo.save(credit);
-  }
-
-  // Increment daily scrape count and decrement available credits
-  async incrementScrapeCount(userId: string, scrapedCount: number): Promise<void> {
-    const credit = await this.creditRepo.findOne({ where: { user: { id: userId }, type: CreditType.SCRAPING }, relations: ['user'] });
-    if (!credit) throw new Error('Scraping credit not found for user');
-    // Reset daily count if new day
-    const now = new Date();
-    if (!credit.dailyResetDate || credit.dailyResetDate.toDateString() !== now.toDateString()) {
-      credit.dailyScrapeCount = 0;
-      credit.dailyResetDate = now;
-    }
-    credit.dailyScrapeCount += scrapedCount;
-    credit.amount = Math.max(0, credit.amount - scrapedCount);
-    await this.creditRepo.save(credit);
-  }
 }
 // Decrement scraping credits, ensuring credits >= 0
   async decrementScrapingCredit(userId: string, amount: number = 1): Promise<Credit> {
