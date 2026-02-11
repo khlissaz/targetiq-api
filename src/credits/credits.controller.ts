@@ -16,12 +16,20 @@ export class CreditsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('scraping-limit')
-    async getScrapingLimit(@Req() req: any) {
-      const userId = req.user.userId;
-      const result =  await this.creditsService.getScrapingLimit(userId);
-      console.log("Scraping limit result:", result);
-      return result;
-    }
+  async getScrapingLimit(@Req() req: any) {
+    const userId = req.user.userId;
+    const result = await this.creditsService.getScrapingLimit(userId);
+    return result;
+  }
+
+  // New endpoint to increment scrape count (decrement daily limit)
+  @UseGuards(JwtAuthGuard)
+  @Post('scraping-limit/increment')
+  async incrementScrapeCount(@Req() req: any, @Body('items') items: number) {
+    const userId = req.user.userId;
+    // You may want to validate 'items' here
+    return this.creditsService.incrementScrapeCount(userId, items);
+  }
 
     @UseGuards(JwtAuthGuard)
     @Get('enrichment-limit')

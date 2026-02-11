@@ -10,6 +10,9 @@ import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class LeadBehaviourService {
+  createQueryBuilder(arg0: string) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectRepository(LeadBehaviour)
     private readonly repo: Repository<LeadBehaviour>,

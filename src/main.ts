@@ -21,7 +21,7 @@ async function bootstrap() {
     // Hook into `res.send` to capture the response body
     res.send = function (body) {
       console.log(`[${req.method}] ${req.url} - Status: ${res.statusCode}`);
-
+console.log('Request Body:', res);
       if (res.statusCode >= 400) {
         console.log('Response Body:', body);
       }
@@ -34,7 +34,7 @@ async function bootstrap() {
   });
   // Enable CORS
   app.enableCors({
-    origin: ['https://www.linkedin.com', 'https://web.whatsapp.com',  process.env.APP_URL], // Update this to match your frontend URL
+    origin: ['https://www.linkedin.com', 'https://web.whatsapp.com',  process.env.APP_URL, "http://localhost:3001"], // Update this to match your frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,  });
 

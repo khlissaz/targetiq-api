@@ -47,6 +47,7 @@ async listLeadsByScrapingIdByPage(
   @UseGuards(JwtAuthGuard)
   @Post("ingest")
   async ingest(@Body() dto: ScrapingDto, @Req() req) {
+    console.log("ingest scraping dto", req.user);
     const user = req.user; // passport-jwt validate returns user object
     console.log(" ingest scraping dto", dto);
     return this.scrapingService.ingest(dto, user.userId);
