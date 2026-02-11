@@ -21,7 +21,6 @@ async function bootstrap() {
     // Hook into `res.send` to capture the response body
     res.send = function (body) {
       console.log(`[${req.method}] ${req.url} - Status: ${res.statusCode}`);
-console.log('Request Body:', res);
       if (res.statusCode >= 400) {
         console.log('Response Body:', body);
       }

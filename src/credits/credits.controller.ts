@@ -19,6 +19,7 @@ export class CreditsController {
   async getScrapingLimit(@Req() req: any) {
     const userId = req.user.userId;
     const result = await this.creditsService.getScrapingLimit(userId);
+    console.log("result", result)
     return result;
   }
 

@@ -72,6 +72,7 @@ export class CreditsService {
     credit.dailyResetDate = now;
     await this.creditRepo.save(credit);
   }
+  console.log("credit", credit)
 
   return {
     dailyLimit: credit.amount,

@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { CreditsModule } from './credits/credits.module';
 import { LeadEnrichmentTasksModule } from './LeadEnrichmentTasks/lead-enrichment-tasks.module';
+import { PricingModule } from './pricing/pricing.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { LeadEnrichmentTasksModule } from './LeadEnrichmentTasks/lead-enrichment
     UsersModule,
     AuthModule,
     CreditsModule,
-    LeadEnrichmentTasksModule
+    LeadEnrichmentTasksModule,
+    PricingModule
   ],
 })
 export class AppModule {}
