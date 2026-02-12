@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CreditsModule } from './credits/credits.module';
 import { LeadEnrichmentTasksModule } from './LeadEnrichmentTasks/lead-enrichment-tasks.module';
 import { PricingModule } from './pricing/pricing.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { PricingModule } from './pricing/pricing.module';
     AuthModule,
     CreditsModule,
     LeadEnrichmentTasksModule,
-    PricingModule
+    PricingModule,
+    PaymentsModule
   ],
 })
 export class AppModule {}

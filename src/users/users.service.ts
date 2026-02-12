@@ -33,9 +33,13 @@ export class UsersService {
     const user = this.userRepo.create(dto);
     const savedUser = await this.userRepo.save(user);
 
-    // 2️⃣ Give default credits
-    await this.creditsService.addCredits(savedUser, CreditType.SCRAPING, 100); // default scraping credits
-    await this.creditsService.addCredits(savedUser, CreditType.ENRICHMENT, 50); // default enrichment credits
+    // 2️⃣ Give default freemium plan credits (50 scraping, 2 enrichment)
+    await this.creditsService.addCredits(savedUser, CreditType.SCRAPING, 50); // freemium scraping credits
+    await this.creditsService.addCredits(savedUser, CreditType.ENRICHMENT, 2); // freemium enrichment credits
+
+    // Optionally: set user.subscriptionTier = 'freemium' and save
+    savedUser.subscriptionTier = 'freemium';
+    await this.userRepo.save(savedUser);
 
     return savedUser;
   }
@@ -112,4 +116,16 @@ export class UsersService {
     const user = await this.findOne(id);
     return user.enrichmentCredit;
   }
+
+  // async grantFreemiumToExistingUser(userId: string): Promise<User> {
+  //   const user = await this.userRepo.findOne({ where: { id: userId } });
+  //   if (!user) throw new Error('User not found');
+
+  //   await this.creditsService.addCredits(user, CreditType.SCRAPING, 50);
+  //   await this.creditsService.addCredits(user, CreditType.ENRICHMENT, 2);
+  //   // Optionally update user's plan field if you track it
+  //   // user.subscriptionTier = 'freemium';
+  //   // await this.userRepo.save(user);
+  //   return user;
+  // }
 }

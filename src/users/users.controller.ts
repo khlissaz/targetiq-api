@@ -71,6 +71,11 @@ findOne(@Param('id') id: string) {
     return this.usersService.update(id, dto);
   }
 
+  // @Patch(':id/grant-freemium')
+  // async grantFreemium(@Param('id') id: string) {
+  //   return this.usersService.grantFreemiumToExistingUser(id);
+  // }
+
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.usersService.remove(id);

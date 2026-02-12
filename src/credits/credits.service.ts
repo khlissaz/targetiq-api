@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -103,6 +102,11 @@ export class CreditsService {
     if (!credit.dailyResetDate || credit.dailyResetDate.toDateString() !== now.toDateString()) {
       credit.dailyScrapeCount = 0;
       credit.dailyResetDate = now;
+    }
+    // Enforce Freemium daily limit
+    const FREEMIUM_DAILY_LIMIT = 50;
+    if ((credit.dailyScrapeCount + scrapedCount) > FREEMIUM_DAILY_LIMIT) {
+      throw new Error('Daily scraping limit reached for Freemium plan (50 per day)');
     }
     credit.dailyScrapeCount += scrapedCount;
     credit.amount = Math.max(0, credit.amount - scrapedCount);
