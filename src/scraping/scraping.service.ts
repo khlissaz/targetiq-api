@@ -210,7 +210,7 @@ export class ScrapingService {
   }
 
   private generateScrapingName() {
-    return `scraping-linkedin-${new Date().toISOString()}`;
+    return `targetiq-${new Date().toISOString()}`;
   }
 async listScrapingsByPage(userId: string, limit?: number, page?: number) {
     // ✅ Parse safely and fall back to defaults
